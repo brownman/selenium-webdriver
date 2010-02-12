@@ -159,6 +159,22 @@ module Selenium
           find_elements_by 'css selector', selector, parent
         end
 
+        def findElementByJsExpr(parent, js_expr)
+          find_element_by 'js expr', js_expr, parent
+        end
+
+        def findElementsByJsExpr(parent, js_expr)
+          find_elements_by 'js expr', js_expr, parent
+        end
+
+        def findElementByJavascript(parent, javascript)
+          find_element_by 'javascript', javascript, parent
+        end
+
+        def findElementsByJavascript(parent, javascript)
+          find_elements_by 'javascript', javascript, parent
+        end
+
         #
         # Element functions
         #

@@ -249,6 +249,32 @@ FirefoxDriver.prototype.findElementsByXPath_ = function(theDocument, xpath,
 
 
 /**
+ * Searches for the first element in {@code theDocument} using the given
+ * {@code Javascript} expression or {@code Javascript} code.
+ * @param {nsIDOMDocument} theDocument The document to search in.
+ * @param {string} javascript The Javascript expression or code to evaluate.
+ * @param {nsIDOMNode} opt_contextNode The context node for the query; defaults
+ *     to {@code theDocument}.
+ * @param {boolean} js_expr Indicate if the javascript is a simple expression
+ *     or bunch line of code.
+ * @return {nsIDOMNode} The first matching node.
+ * @private
+ */
+FirefoxDriver.prototype.findElementByJavascript = function(theDocument, javascript, opt_contextNode, js_expr) {
+
+  if (js_expr) {
+    javascript = 'return this.' + javascript + ';';
+  }
+
+  var fn = new Function('window', javascript);
+
+  return fn.apply(theDocument.defaultView.wrappedJSObject, [
+    theDocument.defaultView.wrappedJSObject.window,
+  ]);
+};
+
+
+/**
  * An enumeration of the supported element locator methods.
  * @enum {string}
  */
@@ -260,7 +286,9 @@ FirefoxDriver.ElementLocator = {
   TAG_NAME: 'tag name',
   LINK_TEXT: 'link text',
   PARTIAL_LINK_TEXT: 'partial link text',
-  XPATH: 'xpath'
+  XPATH: 'xpath',
+  JS_EXPR: 'js expr',
+  JAVASCRIPT: 'javascript'
 };
 
 
@@ -313,7 +341,7 @@ FirefoxDriver.prototype.findElementInternal_ = function(respond, method,
         respond.isError = true;
         respond.response = "CSS Selectors not supported natively";
         respond.send();
-      }      
+      }
       break;
 
     case FirefoxDriver.ElementLocator.TAG_NAME:
@@ -337,6 +365,14 @@ FirefoxDriver.prototype.findElementInternal_ = function(respond, method,
           element = allLinks[i];
         }
       }
+      break;
+
+    case FirefoxDriver.ElementLocator.JS_EXPR:
+      element = this.findElementByJavascript(theDocument, selector, rootNode, true);
+      break;
+
+    case FirefoxDriver.ElementLocator.JAVASCRIPT:
+      element = this.findElementByJavascript(theDocument, selector, rootNode, false);
       break;
 
     default:

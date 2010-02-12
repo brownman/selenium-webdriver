@@ -13,6 +13,8 @@ module Selenium
         :partial_link_text => 'PartialLinkText',
         :tag_name          => 'TagName',
         :xpath             => 'Xpath',
+        :js_expr           => 'JsExpr',
+        :javascript        => 'Javascript',
       }
 
       #
