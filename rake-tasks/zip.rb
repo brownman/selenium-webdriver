@@ -11,10 +11,12 @@ def uber_jar(args)
     
     dir = "build/#{args[:name]}_temp"
     mkdir_p dir, :verbose => false
-    args[:src].each do |src|
-      sh "cd #{dir} && jar xf ../../#{src}", :verbose => false
+    Dir.chdir(dir) do
+      args[:src].each do |src|
+        sh "jar xf ../../#{src}", :verbose => false
+      end
+      sh "jar cMf ../#{args[:out]} *", :verbose => false
     end
-    sh "cd #{dir} && jar cMf ../#{args[:out]} *", :verbose => false
     rm_rf dir, :verbose => false
   end
   task args[:name] => out
@@ -39,7 +41,9 @@ def zip(args)
         cp src, dir
       end
     end
-    sh "cd #{dir}/.. && jar cMf ../#{args[:out]} *", :verbose => false
+    Dir.chdir(dir) do
+      sh "jar cMf ../#{args[:out]} *", :verbose => false
+    end
     
     rm_rf "build/#{args[:name]}_temp", :verbose => false
   end

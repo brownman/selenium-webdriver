@@ -480,11 +480,15 @@ java_uberjar(:name => "selenium-server",
 task :'selenium-server_zip' do
   temp = "build/selenium-server_zip"
   mkdir_p temp
-  sh "cd #{temp} && jar xf ../selenium-server.zip", :verbose => false
+  Dir.chdir(temp) do
+    sh "jar xf ../selenium-server.zip", :verbose => false
+  end
   rm_f "build/selenium-server.zip"
   Dir["#{temp}/webdriver-*.jar"].each { |file| rm_rf file }
   mv "#{temp}/selenium-server.jar", "#{temp}/selenium-server-#{version}.jar"
-  sh "cd #{temp} && jar cMf ../selenium-server.zip *", :verbose => false
+  Dir.chdir(temp) do
+    sh "jar cMf ../selenium-server.zip *", :verbose => false
+  end
 end
 
 java_uberjar(:name => "selenium-server-standalone",
@@ -682,7 +686,9 @@ task :iphone_server do
   sdk = iPhoneSDK?
   if sdk != nil then
     puts "Building iWebDriver iphone app"
-    sh "cd iphone && xcodebuild -sdk #{sdk} ARCHS=i386 -target iWebDriver >/dev/null", :verbose => false
+    Dir.chdir('iphone') do
+      sh "xcodebuild -sdk #{sdk} ARCHS=i386 -target iWebDriver >/dev/null", :verbose => false
+    end
   else
     puts "XCode not found. Not building the iphone driver."
   end
@@ -692,7 +698,9 @@ end
 task :test_iphone_server do
   sdk = iPhoneSDK?
   if sdk != nil then
-    sh "cd iphone && xcodebuild -sdk #{sdk} ARCHS=i386 -target Tests"
+    Dir.chdir('iphone') do
+      sh "xcodebuild -sdk #{sdk} ARCHS=i386 -target Tests"
+    end
   else
     puts "XCode and/or iPhoneSDK not found. Not testing iphone_server."
   end
@@ -713,7 +721,9 @@ task :remote_release => [:remote] do
   cp Dir.glob('remote/client/lib/runtime/*.jar'), 'build/dist/remote_client'
   cp 'third_party/java/google-collect-1.0.jar', 'build/dist/remote_client'
 
-  sh "cd build/dist && zip -r webdriver-remote-client-#{version}.zip remote_client/*"
+  Dir.chdir('build/dist') do
+    sh "zip -r webdriver-remote-client-#{version}.zip remote_client/*"
+  end
   rm_rf "build/dist/remote_client", :verbose => false
 
   mkdir_p "build/dist/remote_server", :verbose => false
@@ -728,7 +738,9 @@ task :remote_release => [:remote] do
 
   rm Dir.glob('build/dist/remote_server/servlet*.jar')
 
-  sh "cd build/dist && zip -r webdriver-remote-server-#{version}.zip remote_server/*"
+  Dir.chdir('build/dist') do
+    sh "zip -r webdriver-remote-server-#{version}.zip remote_server/*"
+  end
   rm_rf "build/dist/remote_server", :verbose => false
 end
 
@@ -753,9 +765,13 @@ end
 task :'selenium-java_zip' do
   temp = "build/selenium-java_zip"
   mkdir_p temp
-  sh "cd #{temp} && jar xf ../selenium-java.zip", :verbose => false
+  Dir.chdir(temp) do
+    sh "jar xf ../selenium-java.zip", :verbose => false
+  end
   rm_f "build/selenium-java.zip"
   Dir["#{temp}/webdriver-*.jar"].each { |file| rm_rf file }
   mv "#{temp}/selenium-java.jar", "#{temp}/selenium-java-#{version}.jar"
-  sh "cd #{temp} && jar cMf ../selenium-java.zip *", :verbose => false
+  Dir.chdir(temp) do
+    sh "jar cMf ../selenium-java.zip *", :verbose => false
+  end
 end

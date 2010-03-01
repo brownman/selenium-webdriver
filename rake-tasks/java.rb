@@ -99,7 +99,7 @@ class JavaGen < BaseGenerator
               if File.directory? from
                 mkdir_p "#{temp}/#{to}"
               end
-              cp_r find_file(from), "#{temp}/#{to}"
+            cp_r find_file(from), "#{temp}/#{to}"
             rescue
               Dir["#{temp}/**/.svn"].each { |file| rm_rf file }
               cp_r find_file(from), "#{temp}/#{to}"
@@ -112,8 +112,10 @@ class JavaGen < BaseGenerator
       end
 
       Dir["#{temp}/**/.svn"].each { |file| rm_rf file }
-      cmd = "cd #{temp} && jar cMf ../../#{out} *"
-      sh cmd, :verbose => false
+      Dir.chdir(temp) do
+        cmd = "jar cMf ../../#{out} *"
+        sh cmd, :verbose => true
+      end
 
       rm_rf temp, :verbose => false
     end
@@ -138,7 +140,9 @@ class JavaGen < BaseGenerator
         copy_resource_(f, temp) if f =~ /\.jar/
       end
       
-      sh "cd #{temp} && jar cMf ../../#{zip_out} *", :verbose => false
+      Dir.chdir(temp) do
+        sh "jar cMf ../../#{zip_out} *", :verbose => false
+      end
       
       rm_rf temp, :verbose => false
     end
@@ -219,7 +223,9 @@ class JavaGen < BaseGenerator
       all.each do |dep|
         next unless dep.to_s =~ /\.jar$/
         next if (dep.to_s =~ /\lib\// or dep.to_s =~ /^third_party\//) and args[:no_libs] == true
-        sh "cd #{temp} && jar xf ../../#{dep}", :verbose => false
+        Dir.chdir(temp) do
+          sh "jar xf ../../#{dep}", :verbose => false
+        end
       end      
 
       excludes = args[:exclude] || []
@@ -247,7 +253,9 @@ class JavaGen < BaseGenerator
         File.open(manifest_file, "w") do |f| f.write(manifest.join("")) end
       end
             
-      sh "cd #{temp} && jar cMf ../../#{out} *", :verbose => false
+      Dir.chdir(temp) do
+        sh "jar cMf ../../#{out} *", :verbose => false
+      end
       rm_rf temp, :verbose => false
     end
     
@@ -304,7 +312,9 @@ class JavaGen < BaseGenerator
       
       Dir["#{temp}/**/.svn"].each { |file| rm_rf file }
             
-      sh "cd #{temp} && jar cMf ../../#{out} *", :verbose => false
+      Dir.chdir(temp) do
+        sh "jar cMf ../../#{out} *", :verbose => false
+      end
       rm_rf temp, :verbose => false
     end
         

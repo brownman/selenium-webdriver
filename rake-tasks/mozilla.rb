@@ -30,7 +30,9 @@ class Mozilla < BaseGenerator
 
       # Package up into the output file
       rm_r Dir.glob("#{target}/**/.svn"), :verbose => false
-      sh "cd #{target} && jar cMf ../#{args[:out]} *", :verbose => false
+      Dir.chdir(target) do
+        sh "jar cMf ../#{args[:out]} *", :verbose => false
+      end
       rm_r target, :verbose => false
     end
   end
